@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        .cart-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+        }
+
+        .remove-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .remove-btn:hover {
+            background: darkred;
+        }
+
+        .total {
+            text-align: right;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: green;
+            color: white;
+            padding: 12px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .checkout-btn:hover {
+            background: darkgreen;
+        }
+
+        /* Updated Form Styling */
+        .form-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1>🛒 Your Shopping Cart</h1>
+    <div class="cart-container">
+        <div id="cart-items"></div>
+        <p class="total">Total: ₹<span id="total-price">0</span></p>
+        
+        <div class="form-container">
+            <h2>Delivery Information</h2>
+            <form id="contactForm">
+                <div class="form-group">
+                    <input type="text" name="firstname" placeholder="First Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="address" placeholder="Address" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="city" placeholder="City" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="state" placeholder="State" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="pincode" placeholder="Pin Code" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="phone" placeholder="Phone" required>
+                </div>
+                <button class="checkout-btn" id="checks">Proceed to Checkout</button>
+
+            </form>
+
+        </div>
+        
+    </div>
+
+    <script>
+        function loadCart() {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            let cartItemsContainer = document.getElementById("cart-items");
+            let totalPrice = document.getElementById("total-price");
+            let total = 0;
+            
+            cartItemsContainer.innerHTML = "";
+            
+            cart.forEach((item, index) => {
+                total += parseInt(item.price.replace("₹", ""));
+                let itemDiv = document.createElement("div");
+                itemDiv.classList.add("cart-item");
+                itemDiv.innerHTML = `
+                    <img src="${item.img}" alt="${item.name}">
+                    <p>${item.name}</p>
+                    <p>${item.price}</p>
+                    <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+                `;
+                cartItemsContainer.appendChild(itemDiv);
+            });
+            
+            totalPrice.innerText = total;
+            document.getElementById("checks").onclick = function () {
+                if(total === 0){
+                    alert("You have no products in the cart!");
+                } else {
+                    
+                    window.location.href = `upi://pay?pa=dawarkil57@oksbi&pn=online&am=${total}&cu=INR`;
+                }
+            }
+        }
+
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            cart.splice(index, 1);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            loadCart();
+        }
+
+        loadCart();
+    </script>
+</body>
+</html>
