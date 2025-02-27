@@ -26,37 +26,64 @@
         const db = getFirestore(app);
         const auth = getAuth();
 
-        onAuthStateChanged(auth, (user) => {
+        function addToCart(id, name, price, img) {
+            const user = auth.currentUser;
             if (user) {
-                const userId = user.uid;
-
-                async function addToCart(id, name, price, img) {
-                    const cartRef = doc(db, "carts", userId);
-                    try {
-                        await updateDoc(cartRef, {
-                            items: arrayUnion({ id, name, price, img })
-                        });
-                        updateCartCount(userId);
-                        alert(name + " added to cart! 🛒");
-                    } catch (error) {
-                        console.error("Error adding to cart: ", error);
-                    }
-                }
-
-                async function updateCartCount(userId) {
-                    const cartRef = doc(db, "carts", userId);
-                    const cartSnap = await getDoc(cartRef);
-                    if (cartSnap.exists()) {
-                        document.querySelector(".cart-count").textContent = cartSnap.data().items.length;
-                    } else {
-                        document.querySelector(".cart-count").textContent = 0;
-                    }
-                }
-
-                document.addEventListener("DOMContentLoaded", () => updateCartCount(userId));
+                const cartRef = doc(db, "carts", user.uid);
+                updateDoc(cartRef, {
+                    items: arrayUnion({ id, name, price, img })
+                }).then(() => {
+                    updateCartCount(user.uid);
+                    alert(name + " added to cart! 🛒");
+                }).catch(error => {
+                    console.error("Error adding to cart: ", error);
+                });
             } else {
-                console.log("No user logged in");
+                alert("Please log in to add items to cart.");
             }
+        }
+
+        function updateCartCount(userId) {
+            const cartRef = doc(db, "carts", userId);
+            getDoc(cartRef).then(cartSnap => {
+                if (cartSnap.exists()) {
+                    document.querySelector(".cart-count").textContent = cartSnap.data().items.length;
+                } else {
+                    document.querySelector(".cart-count").textContent = 0;
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    updateCartCount(user.uid);
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const productsContainer = document.getElementById("products-container");
+            const products = [
+                { id: 1, name: "Smartphone", price: 15000, img: "https://via.placeholder.com/150" },
+                { id: 2, name: "Laptop", price: 45000, img: "https://via.placeholder.com/150" },
+                { id: 3, name: "Headphones", price: 2000, img: "https://via.placeholder.com/150" }
+            ];
+
+            products.forEach((product) => {
+                const productCard = `
+                    <div class="card">
+                        <img src="${product.img}" class="card-img-top" alt="${product.name}">
+                        <div class="card-body">
+                            <h5 class="card-title">${product.name}</h5>
+                            <p class="card-text">₹${product.price}</p>
+                            <p class="free-delivery">🚚 Free Delivery</p>
+                            <button class="cart-btn" onclick="addToCart('${product.id}', '${product.name}', ${product.price}, '${product.img}')">Add to Cart</button>
+                        </div>
+                    </div>
+                `;
+                productsContainer.innerHTML += productCard;
+            });
         });
     </script>
     <style>
@@ -132,34 +159,7 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">🛍️ Online Shopping</a>
-            <button class="navbar-toggler" type="button">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Products</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Deals</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html">Log out</a></li>
-                    <li>
-                        <a href="cart.html" class="cart-icon">
-                            🛒 Cart <span class="cart-count">0</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
     <div class="products" id="products-container"></div>
-
-    <footer class="footer text-center bg-dark text-white py-3 mt-4">
-        <p>© 2025 Online Shopping. All Rights Reserved.</p>
-    </footer>
 </body>
 
 </html>
