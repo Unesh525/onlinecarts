@@ -8,84 +8,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDt_fcSYPmnJf2BlG-hkloTvRbly777zlo",
-            authDomain: "login-sytem-e8de2.firebaseapp.com",
-            projectId: "login-sytem-e8de2",
-            storageBucket: "login-sytem-e8de2.firebasestorage.app",
-            messagingSenderId: "153196193021",
-            appId: "1:153196193021:web:f44231cd3918be9df70a94"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth();
-
-        function addToCart(id, name, price, img) {
-            const user = auth.currentUser;
-            if (user) {
-                const cartRef = doc(db, "carts", user.uid);
-                updateDoc(cartRef, {
-                    items: arrayUnion({ id, name, price, img })
-                }).then(() => {
-                    updateCartCount(user.uid);
-                    alert(name + " added to cart! 🛒");
-                }).catch(error => {
-                    console.error("Error adding to cart: ", error);
-                });
-            } else {
-                alert("Please log in to add items to cart.");
-            }
-        }
-
-        function updateCartCount(userId) {
-            const cartRef = doc(db, "carts", userId);
-            getDoc(cartRef).then(cartSnap => {
-                if (cartSnap.exists()) {
-                    document.querySelector(".cart-count").textContent = cartSnap.data().items.length;
-                } else {
-                    document.querySelector(".cart-count").textContent = 0;
-                }
-            });
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    updateCartCount(user.uid);
-                }
-            });
-        });
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const productsContainer = document.getElementById("products-container");
-            const products = [
-                { id: 1, name: "Smartphone", price: 15000, img: "https://via.placeholder.com/150" },
-                { id: 2, name: "Laptop", price: 45000, img: "https://via.placeholder.com/150" },
-                { id: 3, name: "Headphones", price: 2000, img: "https://via.placeholder.com/150" }
-            ];
-
-            products.forEach((product) => {
-                const productCard = `
-                    <div class="card">
-                        <img src="${product.img}" class="card-img-top" alt="${product.name}">
-                        <div class="card-body">
-                            <h5 class="card-title">${product.name}</h5>
-                            <p class="card-text">₹${product.price}</p>
-                            <p class="free-delivery">🚚 Free Delivery</p>
-                            <button class="cart-btn" onclick="addToCart('${product.id}', '${product.name}', ${product.price}, '${product.img}')">Add to Cart</button>
-                        </div>
-                    </div>
-                `;
-                productsContainer.innerHTML += productCard;
-            });
-        });
-    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -159,7 +81,80 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">🛍️ Online Shopping</a>
+            <button class="navbar-toggler" type="button" >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Deals</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html">Log out</a></li>
+                    <li>
+                        <a href="cart.html" class="cart-icon">
+                            🛒 Cart <span class="cart-count">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="products" id="products-container"></div>
+
+    <footer class="footer text-center bg-dark text-white py-3 mt-4">
+        <p>© 2025 Online Shopping. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        $(document).ready(function () {
+            $(".navbar-toggler").click(function () {
+                $("#navbarNav").slideToggle(1000);
+            });
+            updateCartCount();
+        });
+
+        function addToCart(id, name, price, img) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            cart.push({ id, name, price, img });
+            localStorage.setItem("cart", JSON.stringify(cart));
+            updateCartCount();
+            alert(name + " added to cart! 🛒");
+        }
+
+        function updateCartCount() {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            document.querySelector(".cart-count").textContent = cart.length;
+        }
+
+        let products = [
+            { id: 1, name: "Stylish Kurti", price: "₹120", img: "product/1.webp" },
+            { id: 2, name: "Mens Jacket", price: "₹299", img: "product/2.webp" },
+            { id: 3, name: "Shoes", price: "₹295", img: "product/3.webp" },
+            { id: 4, name: "Smart Watch", price: "₹310", img: "product/4.webp" }
+        ];
+
+        let productsContainer = document.getElementById('products-container');
+
+        products.forEach(product => {
+            let card = document.createElement("div");
+            card.classList.add("card");
+            card.innerHTML = `
+                <img src="${product.img}" alt="${product.name}" style="width:100%; height:200px; border-radius:10px;">
+                <h3>${product.name}</h3>
+                <p class="free-delivery">🚚 Free Delivery</p>
+                <h4 style="color: green; font-weight: bold;">${product.price}</h4>
+                <button class="cart-btn" onclick="addToCart(${product.id}, '${product.name}', '${product.price}', '${product.img}')">Add to Cart</button>
+            `;
+            productsContainer.appendChild(card);
+        });
+
+        document.addEventListener("DOMContentLoaded", updateCartCount);
+    </script>
 </body>
 
 </html>
