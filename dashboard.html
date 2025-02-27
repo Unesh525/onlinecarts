@@ -134,6 +134,13 @@
         
         $(document).ready(function () {
             updateCartCount();
+            $(document).on('click', '.cart-btn', function() {
+                let id = $(this).data('id');
+                let name = $(this).data('name');
+                let price = $(this).data('price');
+                let img = $(this).data('img');
+                addToCart(id, name, price, img);
+            });
         });
 
         function addToCart(id, name, price, img) {
@@ -166,7 +173,7 @@
                 <h3>${product.name}</h3>
                 <p class="free-delivery">🚚 Free Delivery</p>
                 <h4 style="color: green; font-weight: bold;">${product.price}</h4>
-                <button class="cart-btn" onclick="addToCart(${product.id}, '${product.name}', '${product.price}', '${product.img}')">Add to Cart</button>
+                <button class="cart-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" data-img="${product.img}">Add to Cart</button>
             `;
             productsContainer.appendChild(card);
         });
