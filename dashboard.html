@@ -114,23 +114,7 @@
     </footer>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDt_fcSYPmnJf2BlG-hkloTvRbly777zlo",
-            authDomain: "login-sytem-e8de2.firebaseapp.com",
-            projectId: "login-sytem-e8de2",
-            storageBucket: "login-sytem-e8de2.firebasestorage.app",
-            messagingSenderId: "153196193021",
-            appId: "1:153196193021:web:f44231cd3918be9df70a94"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                window.location.href = "login.html";
-            }
-        });
+       
         
         $(document).ready(function () {
             updateCartCount();
