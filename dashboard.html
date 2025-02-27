@@ -8,9 +8,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -87,7 +84,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">🛍️ Online Shopping</a>
-            <button class="navbar-toggler" type="button" onclick="$('#navbarNav').slideToggle(1000);">
+            <button class="navbar-toggler" type="button" >
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -114,17 +111,11 @@
     </footer>
 
     <script>
-       
-        
         $(document).ready(function () {
-            updateCartCount();
-            $(document).on('click', '.cart-btn', function() {
-                let id = $(this).data('id');
-                let name = $(this).data('name');
-                let price = $(this).data('price');
-                let img = $(this).data('img');
-                addToCart(id, name, price, img);
+            $(".navbar-toggler").click(function () {
+                $("#navbarNav").slideToggle(1000);
             });
+            updateCartCount();
         });
 
         function addToCart(id, name, price, img) {
@@ -157,10 +148,12 @@
                 <h3>${product.name}</h3>
                 <p class="free-delivery">🚚 Free Delivery</p>
                 <h4 style="color: green; font-weight: bold;">${product.price}</h4>
-                <button class="cart-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" data-img="${product.img}">Add to Cart</button>
+                <button class="cart-btn" onclick="addToCart(${product.id}, '${product.name}', '${product.price}', '${product.img}')">Add to Cart</button>
             `;
             productsContainer.appendChild(card);
         });
+
+        document.addEventListener("DOMContentLoaded", updateCartCount);
     </script>
 </body>
 
