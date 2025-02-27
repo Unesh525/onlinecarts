@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -84,7 +87,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">🛍️ Online Shopping</a>
-            <button class="navbar-toggler" type="button" >
+            <button class="navbar-toggler" type="button">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -111,6 +114,17 @@
     </footer>
 
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDt_fcSYPmnJf2BlG-hkloTvRbly777zlo",
+            authDomain: "login-sytem-e8de2.firebaseapp.com",
+            projectId: "login-sytem-e8de2",
+            storageBucket: "login-sytem-e8de2.firebasestorage.app",
+            messagingSenderId: "153196193021",
+            appId: "1:153196193021:web:f44231cd3918be9df70a94"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         $(document).ready(function () {
             $(".navbar-toggler").click(function () {
                 $("#navbarNav").slideToggle(1000);
@@ -119,16 +133,24 @@
         });
 
         function addToCart(id, name, price, img) {
-            let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            cart.push({ id, name, price, img });
-            localStorage.setItem("cart", JSON.stringify(cart));
-            updateCartCount();
-            alert(name + " added to cart! 🛒");
+            const userId = "test-user"; // Change this to dynamic user ID
+            db.collection("carts").doc(userId).update({
+                items: firebase.firestore.FieldValue.arrayUnion({ id, name, price, img })
+            }).then(() => {
+                updateCartCount();
+                alert(name + " added to cart! 🛒");
+            }).catch(error => console.error("Error adding to cart: ", error));
         }
 
         function updateCartCount() {
-            let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            document.querySelector(".cart-count").textContent = cart.length;
+            const userId = "test-user";
+            db.collection("carts").doc(userId).get().then(doc => {
+                if (doc.exists) {
+                    document.querySelector(".cart-count").textContent = doc.data().items.length;
+                } else {
+                    document.querySelector(".cart-count").textContent = 0;
+                }
+            });
         }
 
         let products = [
@@ -152,8 +174,6 @@
             `;
             productsContainer.appendChild(card);
         });
-
-        document.addEventListener("DOMContentLoaded", updateCartCount);
     </script>
 </body>
 
